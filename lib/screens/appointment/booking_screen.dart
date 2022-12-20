@@ -61,7 +61,8 @@ class BookingScreen extends StatelessWidget {
                     : step == 2
                         ? displayClinic(cityWatch!.name)
                         : step == 3
-                            ? displayBeautician(clinicWatch!, cityWatch!.name)
+                            ? displayBeautician(clinicWatch!, cityWatch!.name,
+                                clinicWatch.docId)
                             : step == 4
                                 ? displayTimeSlot(
                                     context, beauticianWatch as BeauticianModel)
@@ -231,9 +232,9 @@ class BookingScreen extends StatelessWidget {
         });
   }
 
-  displayBeautician(ClinicModel clinicModel, String cityName) {
+  displayBeautician(ClinicModel clinicModel, String cityName, String docId) {
     return FutureBuilder(
-        future: getBeauticianbyClinic(clinicModel, cityName),
+        future: getBeauticianbyClinic(clinicModel, cityName,docId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
