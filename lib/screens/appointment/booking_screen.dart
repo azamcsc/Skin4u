@@ -61,7 +61,7 @@ class BookingScreen extends StatelessWidget {
                     : step == 2
                         ? displayClinic(cityWatch!.name)
                         : step == 3
-                            ? displayBeautician(clinicWatch!)
+                            ? displayBeautician(clinicWatch!, cityWatch!.name)
                             : step == 4
                                 ? displayTimeSlot(
                                     context, beauticianWatch as BeauticianModel)
@@ -97,14 +97,10 @@ class BookingScreen extends StatelessWidget {
                       ),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: (step == 1 &&
-                                      Provider.Provider.of<StateMangment>(context, listen: false)
-                                              .selectedCity
-                                              ?.name ==
-                                          null) ||
+                          onPressed: (step == 1 && Provider.Provider.of<StateMangment>(context, listen: false).selectedCity?.name == null) ||
                                   (step == 2 &&
                                       Provider.Provider.of<StateMangment>(context, listen: false)
-                                              .selectedBeautician
+                                              .selectedClinic
                                               ?.docId ==
                                           null) ||
                                   (step == 3 &&
@@ -119,8 +115,10 @@ class BookingScreen extends StatelessWidget {
                               ? null
                               : step == 5
                                   ? null
-                                  : () => Provider.Provider.of<StateMangment>(context, listen: false)
-                                      .changeCurrentStep(Provider.Provider.of<StateMangment>(context, listen: false).currentStep + 1),
+                                  : () => Provider.Provider.of<StateMangment>(context,
+                                          listen: false)
+                                      .changeCurrentStep(
+                                          Provider.Provider.of<StateMangment>(context, listen: false).currentStep + 1),
                           child: Text('Next'),
                         ),
                       ),
@@ -164,7 +162,8 @@ class BookingScreen extends StatelessWidget {
                           color: Colors.black,
                         ),
                         trailing: Provider.Provider.of<StateMangment>(context)
-                                    .selectedCity ==
+                                    .selectedCity
+                                    ?.name ==
                                 cities[index].name
                             ? Icon(Icons.check)
                             : null,
@@ -195,48 +194,46 @@ class BookingScreen extends StatelessWidget {
                 child: Text('Cannot Load Clinic List'),
               );
             else
-              return GestureDetector(
-                //onTap: ()=> Provider.Provider.of<StateMangment>(context).selectedCity,
-                child: ListView.builder(
-                    itemCount: clinic.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () =>
-                            Provider.Provider.of<StateMangment>(context)
-                                .selectedClinic ==
-                            clinic[index].name,
-                        child: Card(
-                            child: ListTile(
-                          leading: Icon(
-                            Icons.spa_sharp,
-                            color: Colors.black,
-                          ),
-                          trailing: Provider.Provider.of<StateMangment>(context)
-                                      .selectedClinic!
-                                      .docId ==
-                                  clinic[index].docId
-                              ? Icon(Icons.check)
-                              : null,
-                          title: Text(
-                            '${clinic[index].name}',
-                            style: GoogleFonts.robotoMono(),
-                          ),
-                          subtitle: Text(
-                            '${clinic[index].address}',
-                            style: GoogleFonts.robotoMono(
-                                fontStyle: FontStyle.italic),
-                          ),
-                        )),
-                      );
-                    }),
+              return ListView.builder(
+                itemCount: clinic.length,
+                itemBuilder: (context, index) {
+                  print("doc id is ${clinic[index].docId}");
+                  return GestureDetector(
+                    onTap: () => Provider.Provider.of<StateMangment>(context,
+                            listen: false)
+                        .changeClinicMode(clinic[index]),
+                    child: Card(
+                        child: ListTile(
+                      leading: Icon(
+                        Icons.spa_sharp,
+                        color: Colors.black,
+                      ),
+                      trailing: Provider.Provider.of<StateMangment>(context)
+                                  .selectedClinic
+                                  ?.docId ==
+                              clinic[index].docId
+                          ? Icon(Icons.check)
+                          : null,
+                      title: Text(
+                        '${clinic[index].name}',
+                        style: GoogleFonts.robotoMono(),
+                      ),
+                      subtitle: Text(
+                        '${clinic[index].address}',
+                        style:
+                            GoogleFonts.robotoMono(fontStyle: FontStyle.italic),
+                      ),
+                    )),
+                  );
+                },
               );
           }
         });
   }
 
-  displayBeautician(ClinicModel clinicModel) {
+  displayBeautician(ClinicModel clinicModel, String cityName) {
     return FutureBuilder(
-        future: getBeauticianbyClinic(clinicModel),
+        future: getBeauticianbyClinic(clinicModel, cityName),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
@@ -266,8 +263,7 @@ class BookingScreen extends StatelessWidget {
                             color: Colors.black,
                           ),
                           trailing: Provider.Provider.of<StateMangment>(context)
-                                      .selectedBeautician!
-                                      .docId ==
+                                      .selectedBeautician ==
                                   beautician[index].docId
                               ? Icon(Icons.check)
                               : null,
@@ -298,99 +294,115 @@ class BookingScreen extends StatelessWidget {
 
   displayTimeSlot(BuildContext context, BeauticianModel beauticianModel) {
     var now = Provider.Provider.of<StateMangment>(context).selectedDate;
-    return Column(children: [
-      Container(
-        color: Colors.brown,
-        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Expanded(
-              child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(children: [
-                Text(
-                  '${DateFormat.MMMM().format(now)}',
-                  style: GoogleFonts.robotoMono(color: Colors.white),
-                ),
-                Text(
-                  '${now.day}',
-                  style: GoogleFonts.robotoMono(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22),
-                ),
-                Text(
-                  '${DateFormat.EEEE().format(now)}',
-                  style: GoogleFonts.robotoMono(color: Colors.white),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    DatePicker.showDatePicker(context,
-                        showTitleActions: true,
-                        minTime: now,
-                        maxTime: now.add(Duration(days: 31)),
-                        onConfirm: (date) =>
-                            Provider.Provider.of<StateMangment>(context)
-                                .selectedDate ==
-                            date);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Icon(
-                        Icons.calendar_today,
+    return Column(
+      children: [
+        Container(
+          color: Colors.brown,
+          child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Expanded(
+                child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(children: [
+                  Text(
+                    '${DateFormat.MMMM().format(now)}',
+                    style: GoogleFonts.robotoMono(color: Colors.white),
+                  ),
+                  Text(
+                    '${now.day}',
+                    style: GoogleFonts.robotoMono(
                         color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22),
+                  ),
+                  Text(
+                    '${DateFormat.EEEE().format(now)}',
+                    style: GoogleFonts.robotoMono(color: Colors.white),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      DatePicker.showDatePicker(context,
+                          showTitleActions: true,
+                          minTime: now,
+                          maxTime: now.add(Duration(days: 31)),
+                          onConfirm: (date) =>
+                              Provider.Provider.of<StateMangment>(context)
+                                  .selectedDate ==
+                              date);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.calendar_today,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                )
-              ]),
-            ),
-          ))
-        ]),
-      ),
-      Expanded(
-        child: FutureBuilder(
-          future: getTimeSlotOfBeautician(beauticianModel, DateFormat('dd_MM_yyyy').format(Provider.Provider.of<StateMangment>(context).selectedDate)),builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(child: CircularProgressIndicator(),);
-            else{
-              var listTimeSlot = snapshot.data as List<int>;
-            
-          return GridView.builder(
-        itemCount: TIME_SLOT.length,
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-        itemBuilder: ((context, index) => GestureDetector(
-            onTap: listTimeSlot.contains(index) ? null : () {
-              Provider.Provider.of<StateMangment>(context).selectedTime =
-                  TIME_SLOT.elementAt(index);
-            },
-            child: Card(
-              color:
-                  Provider.Provider.of<StateMangment>(context).selectedTime ==
-                          TIME_SLOT.elementAt(index)
-                      ? Colors.white54
-                      : Colors.white,
-              child: GridTile(
-                child: Center(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('${TIME_SLOT.elementAt(index)}'),
-                    Text(listTimeSlot.contains(index) ? 'Occupied' : 'Available'),
-                  ],
-                )),
-                header:
-                    Provider.Provider.of<StateMangment>(context).selectedTime ==
-                            TIME_SLOT.elementAt(index)
-                        ? Icon(Icons.check)
-                        : null,
+                  )
+                ]),
               ),
-          ))),
-      );}
-  },),),],);
+            ))
+          ]),
+        ),
+        Expanded(
+          child: FutureBuilder(
+            future: getTimeSlotOfBeautician(
+                beauticianModel,
+                DateFormat('dd_MM_yyyy').format(
+                    Provider.Provider.of<StateMangment>(context).selectedDate)),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting)
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              else {
+                var listTimeSlot = snapshot.data as List<int>;
+
+                return GridView.builder(
+                  itemCount: TIME_SLOT.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3),
+                  itemBuilder: ((context, index) => GestureDetector(
+                      onTap: listTimeSlot.contains(index)
+                          ? null
+                          : () {
+                              Provider.Provider.of<StateMangment>(context)
+                                  .selectedTime = TIME_SLOT.elementAt(index);
+                            },
+                      child: Card(
+                        color: Provider.Provider.of<StateMangment>(context)
+                                    .selectedTime ==
+                                TIME_SLOT.elementAt(index)
+                            ? Colors.white54
+                            : Colors.white,
+                        child: GridTile(
+                          child: Center(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('${TIME_SLOT.elementAt(index)}'),
+                              Text(listTimeSlot.contains(index)
+                                  ? 'Occupied'
+                                  : 'Available'),
+                            ],
+                          )),
+                          header: Provider.Provider.of<StateMangment>(context)
+                                      .selectedTime ==
+                                  TIME_SLOT.elementAt(index)
+                              ? Icon(Icons.check)
+                              : null,
+                        ),
+                      ))),
+                );
+              }
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   confirmBooking(BuildContext context) {
@@ -464,44 +476,86 @@ class BookingScreen extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Image.asset('assets/splash/logo.png'),
         )),
-        Expanded(child: Container (
+        Expanded(
+            child: Container(
           width: MediaQuery.of(context).size.width,
-          child: Card (child: Padding(padding: const EdgeInsets.all(16),child:
-          Column(children: [
-            Text ('See you during our consultation session.', style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),),
-            Text ('Booking Information', style: GoogleFonts.robotoMono(),),
-            Row(children: [
-              Icon(Icons.calendar_today),
-              SizedBox (width: 20,),
-              Text ('${Provider.Provider.of<StateMangment>(context).selectedTime} - ${DateFormat('dd_MM_yyyy').format(Provider.Provider.of<StateMangment>(context).selectedDate)}}' //hour}', 
-          ,style: GoogleFonts.robotoMono(),),
-            ],),
-            SizedBox( height: 10),
-            Row(children: [
-              Icon(Icons.person),
-              SizedBox (width: 20,),
-              Text ('${Provider.Provider.of<StateMangment>(context).selectedBeautician!.name}' 
-          ,style: GoogleFonts.robotoMono(),),
-            ],),
-            SizedBox(height: 10,),
-            Divider (thickness: 1,),
-            Row(children: [
-              Icon(Icons.spa),
-              SizedBox (width: 20,),
-              Text ('${Provider.Provider.of<StateMangment>(context).selectedClinic!.name}' 
-          ,style: GoogleFonts.robotoMono(),),
-            ],),
-            SizedBox( height: 10),
-            Row(children: [
-              Icon(Icons.location_city),
-              SizedBox (width: 20,),
-              Text ('${Provider.Provider.of<StateMangment>(context).selectedClinic!.address}' 
-          ,style: GoogleFonts.robotoMono(),),
-            ],),
-            ElevatedButton(onPressed: () => confirmBooking(context), 
-            child: Text ('Confirm'), style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.black26)),
-            )
-          ]),)),
+          child: Card(
+              child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(children: [
+              Text(
+                'See you during our consultation session.',
+                style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Booking Information',
+                style: GoogleFonts.robotoMono(),
+              ),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    '${Provider.Provider.of<StateMangment>(context).selectedTime} - ${DateFormat('dd_MM_yyyy').format(Provider.Provider.of<StateMangment>(context).selectedDate)}}' //hour}',
+                    ,
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Icon(Icons.person),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    '${Provider.Provider.of<StateMangment>(context).selectedBeautician!.name}',
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Divider(
+                thickness: 1,
+              ),
+              Row(
+                children: [
+                  Icon(Icons.spa),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    '${Provider.Provider.of<StateMangment>(context).selectedClinic!.name}',
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Icon(Icons.location_city),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    '${Provider.Provider.of<StateMangment>(context).selectedClinic!.address}',
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () => confirmBooking(context),
+                child: Text('Confirm'),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.black26)),
+              )
+            ]),
+          )),
         ))
       ],
     );

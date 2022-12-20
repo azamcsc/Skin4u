@@ -36,10 +36,15 @@ Future<List<ClinicModel>> getClinicCity(String cityName) async {
   return clinics;
 }
 
-Future<List<BeauticianModel>> getBeauticianbyClinic(ClinicModel clinic) async {
+Future<List<BeauticianModel>> getBeauticianbyClinic(
+    ClinicModel clinic, String cityName) async {
   var beautician = new List<BeauticianModel>.empty(growable: true);
-  var beauticianRef = FirebaseFirestore.instance.collection('Beautician');
+  var beauticianRef = FirebaseFirestore.instance
+      .collection("AllClinic")
+      .doc(cityName.replaceAll(" ", ""))
+      .collection('Beautician');
   var snapshot = await beauticianRef.get();
+  print("beauti length is ${snapshot.docs.length}");
   snapshot.docs.forEach((element) {
     var beautician = BeauticianModel.fromJson(element.data());
     beautician.docId = element.id;

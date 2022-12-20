@@ -52,7 +52,7 @@ class _FetchDataState extends State<FetchData> {
           ),
           const Center(
             child: SpinKitFadingFour(
-              color: Colors.white,
+              color: Color.fromARGB(255, 252, 204, 187),
             ),
           )
         ],
