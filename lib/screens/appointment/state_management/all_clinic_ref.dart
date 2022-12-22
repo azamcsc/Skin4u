@@ -32,7 +32,9 @@ Future<List<ClinicModel>> getClinicCity(String cityName) async {
     print(clinic.toJson());
     clinics.add(clinic);
   });
+  print("ccccccc");
   print(clinics);
+  print("ccccccc");
   return clinics;
 }
 
@@ -41,6 +43,7 @@ Future<List<BeauticianModel>> getBeauticianbyClinic(
   print("id $docId");
   print("city name is $cityName");
   var beautician = new List<BeauticianModel>.empty(growable: true);
+  var beauticians = <BeauticianModel>[];
   // var beauticianRef = FirebaseFirestore.instance
   // .collection("AllClinic")
   // .doc(cityName.replaceAll(" ", ""))
@@ -56,12 +59,19 @@ Future<List<BeauticianModel>> getBeauticianbyClinic(
   var snapshot = await beauticianRef.get();
   print("beauti length is ${snapshot.docs.length}");
   snapshot.docs.forEach((element) {
+
     var beautician = BeauticianModel.fromJson(element.data());
     beautician.docId = element.id;
     beautician.reference = element.reference;
-    beautician.add(beautician);
+    print("sssssssss");
+    print(beautician);
+    print("sssssssss");
+    beauticians.add(beautician);
   });
-  return beautician;
+  print("jjjjjjj");
+  print(beauticians);
+  print("jjjjjjj");
+  return beauticians;
 }
 
 Future<List<int>> getTimeSlotOfBeautician(

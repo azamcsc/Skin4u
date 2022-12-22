@@ -7,7 +7,7 @@ class BeauticianModel {
 
   late DocumentReference reference;
 
-  BeauticianModel();
+  BeauticianModel({required this.userName,required this.name,required this.rating,required this.ratingTimes});
 
     BeauticianModel.fromJson(Map<String, dynamic> json){
     userName = json['userName'];
@@ -20,10 +20,13 @@ class BeauticianModel {
     final Map<String,dynamic> data = 
     //new Map
     <String,dynamic>{};
-    data ['name'] = this.name;
-    data ['userName'] = this.userName;
-    data ['rating'] = this.rating;
-    data ['ratingTimes'] = this.ratingTimes;
+    data['name'] = this.name;
+    data['userName'] = this.userName;
+    data['rating'] = this.rating;
+    data['ratingTimes'] = this.ratingTimes;
+    print("hhhhhhhh");
+    print(data);
+    print("hhhhhhhh");
     return data;
   }
 

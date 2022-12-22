@@ -19,11 +19,14 @@ class _FetchDataState extends State<FetchData> {
   @override
   void initState() {
     images.shuffle();
-    Future.delayed(const Duration(microseconds: 5), () async {
+    Future.delayed(const Duration(microseconds: 15), () async {
       final productsProvider =
-          Provider.of<ProductsProvider>(context, listen: false);
+          Provider.of<ProductsProvider>(context, listen: true);
+
 
       final User? user = FirebaseAuth.instance.currentUser;
+      print("ttttt");
+      print(user);
       if (user == null) {
         await productsProvider.fetchProducts();
       } else {

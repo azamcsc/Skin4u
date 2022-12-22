@@ -6,7 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../consts/contss.dart';
 import '../../fetch_data.dart';
-import '../home_screen1.dart';
+import '../home_screen.dart';
 import '../loading_manager.dart';
 import 'forget_pass.dart';
 import '../../services/global_methods.dart';
@@ -35,6 +35,13 @@ class _LoginScreenState extends State<LoginScreen> {
     _passFocusNode.dispose();
     super.dispose();
   }
+
+
+  initState() {
+    _emailTextController.text="test@gmail.com";
+    _passTextController.text="Tester1";
+  }
+
 
 // To Create method of Sign In with Email
   void _submitFormOnLogin() async {

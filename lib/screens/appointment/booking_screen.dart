@@ -61,11 +61,9 @@ class BookingScreen extends StatelessWidget {
                     : step == 2
                         ? displayClinic(cityWatch!.name)
                         : step == 3
-                            ? displayBeautician(clinicWatch!, cityWatch!.name,
-                                clinicWatch.docId)
-                            : step == 4
-                                ? displayTimeSlot(
-                                    context, beauticianWatch as BeauticianModel)
+                            ? displayBeautician(clinicWatch!, cityWatch!.name,clinicWatch.docId)
+                               : step == 4
+                                ? displayTimeSlot(context, beauticianWatch as BeauticianModel)
                                 : step == 5
                                     ? displayConfirm(context)
                                     //(Provider.Provider.of<StateMangment>(context).selectedClinic)
@@ -233,6 +231,9 @@ class BookingScreen extends StatelessWidget {
   }
 
   displayBeautician(ClinicModel clinicModel, String cityName, String docId) {
+    print("oooooooooo");
+    print(docId);
+    print("oooooooooo");
     return FutureBuilder(
         future: getBeauticianbyClinic(clinicModel, cityName,docId),
         builder: (context, snapshot) {
@@ -241,54 +242,62 @@ class BookingScreen extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           else {
+
             var beautician = snapshot.data as List<BeauticianModel>;
+            print("kkkkkkkkk");
+            print(beautician.length);
+            print("kkkkkkkkk");
             if (beautician == null || beautician.length == 0)
               return Center(
                 child: Text('Beautician list is empty'),
               );
             else
-              return GestureDetector(
-                //onTap: ()=> Provider.Provider.of<StateMangment>(context).selectedCity,
-                child: ListView.builder(
-                    itemCount: beautician.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () =>
-                            Provider.Provider.of<StateMangment>(context)
-                                .selectedBeautician ==
-                            beautician[index].name,
-                        child: Card(
-                            child: ListTile(
-                          leading: Icon(
-                            Icons.person,
-                            color: Colors.black,
-                          ),
-                          trailing: Provider.Provider.of<StateMangment>(context)
-                                      .selectedBeautician ==
-                                  beautician[index].docId
-                              ? Icon(Icons.check)
-                              : null,
-                          title: Text(
-                            '${beautician[index].name}',
-                            style: GoogleFonts.robotoMono(),
-                          ),
-                          subtitle: RatingBar.builder(
-                            itemSize: 16,
-                            allowHalfRating: true,
-                            initialRating: beautician[index].rating,
-                            direction: Axis.horizontal,
-                            itemCount: 5,
-                            onRatingUpdate: (value) {},
-                            itemBuilder: (context, _) => Icon(
-                              Icons.star,
-                              color: Colors.amber,
+              return ListView.builder(
+                  itemCount: beautician.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      // Provider.Provider.of<StateMangment>(context,listen: false)
+                      onTap:(){
+                       // Provider.Provider.of<StateMangment>(context,listen: false);
+                        print("xxxxxx");
+                        Provider.Provider.of<StateMangment>(context,listen: false).changeBeautician(beautician[index]);
+                        print(beautician[index].name);
+                        //Provider.Provider.of<StateMangment>(context,listen: false).selectedBeautician==beautician[index].name;
+                      },
+
+
+
+                      child: Card(
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.person,
+                              color: Colors.black,
                             ),
-                            itemPadding: const EdgeInsets.all(4),
-                          ),
-                        )),
-                      );
-                    }),
-              );
+                            trailing: Provider.Provider.of<StateMangment>(context)
+                                .selectedBeautician ?.docId==
+                                beautician[index].docId
+                                ? Icon(Icons.check)
+                                : null,
+                            title: Text(
+                              '${beautician[index].name}',
+                              style: GoogleFonts.robotoMono(),
+                            ),
+                            subtitle: RatingBar.builder(
+                              itemSize: 16,
+                              allowHalfRating: true,
+                              initialRating: beautician[index].rating,
+                              direction: Axis.horizontal,
+                              itemCount: 5,
+                              onRatingUpdate: (value) {},
+                              itemBuilder: (context, _) => Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                              ),
+                              itemPadding: const EdgeInsets.all(4),
+                            ),
+                          )),
+                    );
+                  });
           }
         });
   }
@@ -322,6 +331,7 @@ class BookingScreen extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
+                      print("oooooo");
                       DatePicker.showDatePicker(context,
                           showTitleActions: true,
                           minTime: now,
@@ -369,9 +379,13 @@ class BookingScreen extends StatelessWidget {
                       onTap: listTimeSlot.contains(index)
                           ? null
                           : () {
-                              Provider.Provider.of<StateMangment>(context)
-                                  .selectedTime = TIME_SLOT.elementAt(index);
-                            },
+                        print("ttttttt");
+                        Provider.Provider.of<StateMangment>(context,listen: false).selectedTime = TIME_SLOT.elementAt(index);
+                        Provider.Provider.of<StateMangment>(context,listen: false).changeTimeSlot(index);//.selectedTime = TIME_SLOT.elementAt(index);
+
+                      //  Provider.Provider.of<StateMangment>(context,listen: false).changeBeautician(beautician[index]);
+
+                      },
                       child: Card(
                         color: Provider.Provider.of<StateMangment>(context)
                                     .selectedTime ==
@@ -391,7 +405,7 @@ class BookingScreen extends StatelessWidget {
                             ],
                           )),
                           header: Provider.Provider.of<StateMangment>(context)
-                                      .selectedTime ==
+                                      .selectedTime==
                                   TIME_SLOT.elementAt(index)
                               ? Icon(Icons.check)
                               : null,
@@ -407,46 +421,51 @@ class BookingScreen extends StatelessWidget {
   }
 
   confirmBooking(BuildContext context) {
+    print("ggggg");
+    print(Provider.Provider.of<StateMangment>(context,listen: false).selectedTime);
+   // print(Provider.Provider.of<StateMangment>(context).selectedTime);
+    print("hhhhhhh");
     var timeStamp = DateTime(
-      Provider.Provider.of<StateMangment>(context).selectedDate.year,
-      Provider.Provider.of<StateMangment>(context).selectedDate.month,
-      Provider.Provider.of<StateMangment>(context).selectedDate.day,
-      int.parse(Provider.Provider.of<StateMangment>(context)
+      Provider.Provider.of<StateMangment>(context,listen: false).selectedDate.year,
+      Provider.Provider.of<StateMangment>(context,listen: false).selectedDate.month,
+      Provider.Provider.of<StateMangment>(context,listen: false).selectedDate.day,
+      int.parse(Provider.Provider.of<StateMangment>(context,listen: false)
           .selectedTime
-          .split(':')[0]
+          .split('.')[1]
           .substring(0, 2)), //hour
-      int.parse(Provider.Provider.of<StateMangment>(context)
+      int.parse(Provider.Provider.of<StateMangment>(context,listen: false)
           .selectedTime
-          .split(':')[1]
+          .split('.')[1]
           .substring(0, 2)), //minute
     ).millisecond;
 
+    print("yyyyyy");
     var submitData = {
       'beauticianId':
-          Provider.Provider.of<StateMangment>(context).selectedBeautician,
+          Provider.Provider.of<StateMangment>(context,listen: false).selectedBeautician!.docId,
       'beauticianName':
-          Provider.Provider.of<StateMangment>(context).selectedBeautician!.name,
+          Provider.Provider.of<StateMangment>(context,listen: false).selectedBeautician!.name,
       'cityBook':
-          Provider.Provider.of<StateMangment>(context).selectedCity!.name,
+          Provider.Provider.of<StateMangment>(context,listen: false).selectedCity!.name,
       //'name': Provider.Provider.of<StateMangment>(context).selectedBeautician.name,
       'clinicAddress':
-          Provider.Provider.of<StateMangment>(context).selectedClinic!.address,
+          Provider.Provider.of<StateMangment>(context,listen: false).selectedClinic!.address,
       'clinicId':
-          Provider.Provider.of<StateMangment>(context).selectedClinic!.docId,
+          Provider.Provider.of<StateMangment>(context,listen: false).selectedClinic!.docId,
       'clinicName':
-          Provider.Provider.of<StateMangment>(context).selectedClinic!.name,
-      'slot': Provider.Provider.of<StateMangment>(context).selectedTimeSlot,
+          Provider.Provider.of<StateMangment>(context,listen: false).selectedClinic!.name,
+      'slot': Provider.Provider.of<StateMangment>(context,listen: false).selectedTimeSlot,
       'timeStamp': timeStamp,
       'time':
-          '${Provider.Provider.of<StateMangment>(context).selectedTime} - ${DateFormat('dd/MM/yyyy').format(Provider.Provider.of<StateMangment>(context).selectedDate)}'
+          '${Provider.Provider.of<StateMangment>(context,listen: false).selectedTime} - ${DateFormat('dd/MM/yyyy').format(Provider.Provider.of<StateMangment>(context,listen: false).selectedDate)}'
     };
     //Submit on Firestore
-    Provider.Provider.of<StateMangment>(context)
+    Provider.Provider.of<StateMangment>(context,listen: false)
         .selectedBeautician!
         .reference
         .collection(
-            '${DateFormat('dd_MM_yyyy').format(Provider.Provider.of<StateMangment>(context).selectedDate)}')
-        .doc(Provider.Provider.of<StateMangment>(context)
+            '${DateFormat('dd_MM_yyyy').format(Provider.Provider.of<StateMangment>(context,listen: false).selectedDate)}')
+        .doc(Provider.Provider.of<StateMangment>(context,listen: false)
             .selectedTimeSlot
             .toString())
         .set(submitData)

@@ -16,7 +16,82 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+class Model{
+  String title,price,imageUrl,description;
+  Model(this.title,this.price,this.imageUrl,this.description);
+}
+
 class _HomeScreenState extends State<HomeScreen> {
+var finish="0";
+  List<Model> list=[];
+  void fetchData()async{
+    var data=await FirebaseFirestore.instance.collection("products").get();
+    for(int i=0;i<data.docs.length;i++){
+      Model model=Model(data.docs[i].data()['title'], data.docs[i].data()['price'],data.docs[i].data()['imageUrl'],data.docs[i].data()['description']);
+      list.add(model);
+    }
+    print("kokokoko");
+    print(list.length);
+    setState(() {
+      finish="1";
+    });
+  }
+
+  void initState() {
+    super.initState();
+    setState(() {
+      fetchData();
+    });
+
+  }
+
+  Widget MyUI(String title,String url,String price,String desc){
+    return Container(
+      child: Card(
+          child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.network(url,height: 56,width: 56,),
+                    Padding(
+
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child:Expanded(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width/1.5,
+                          child:  Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(title, style: TextStyle(fontSize: 18)),
+                                Text(desc,),
+                                Text('RM$price'),
+
+
+
+                              ]
+                          ),
+                        ),
+                      ),
+                    ),
+                    Spacer(),
+
+                  ]
+              )
+          )
+      )/*Column(
+        children: [
+          SizedBox(height: 12,),
+          Text(title),
+          Image.network(url),
+          Text(price),
+          Text(desc)
+        ],
+      ),*/
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final Utils utils = Utils(context);
@@ -24,6 +99,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Size size = utils.getScreenSize;
     final productProviders = Provider.of<ProductsProvider>(context);
     List<ProductModel> allProducts = productProviders.getProducts;
+    print("xxxxxxxxxxxx");
+    print( allProducts.length);
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -63,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   TextButton(
                     onPressed: () {},
                     child: TextWidget(
-                      text: 'Browse all',
+                      text: 'Browse alls',
                       maxLines: 1,
                       color: Colors.blue,
                       textSize: 20,
@@ -72,7 +149,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            GridView.count(
+        Container(
+          height: 600,
+          child: finish=="0"? Center(child: Text("No Product")):ListView.builder(itemCount: list.length,
+            itemBuilder:(_,index){
+              return MyUI(list[index].title, list[index].imageUrl, list[index].price, list[index].description);
+            },
+          ),)
+            /*GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
@@ -87,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const FeedsItems(),
                 );
               }),
-            )
+            )*/
           ],
         ),
       ),

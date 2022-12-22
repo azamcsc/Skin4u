@@ -18,6 +18,9 @@ class ClinicModel{
     //new Map
     <String,dynamic>{};
     data ['name'] = this.name;
+    print("aaaaaaaaaa");
+    print(data);
+    print("aaaaaaaaaa");
     return data;
   }
 

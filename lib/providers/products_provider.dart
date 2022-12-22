@@ -5,16 +5,29 @@ import 'package:flutter/cupertino.dart';
 class ProductsProvider with ChangeNotifier {
   static List<ProductModel> _productsList = [];
 
+  void initState() {
+   print("jjjjjj");
+
+  }
+
   List<ProductModel> get getProducts {
+   // fetchProducts();
+    print("yyyyyyyy");
+    print(_productsList.length);
+
     return _productsList;
   }
 
+
   Future<void> fetchProducts() async {
+    print("zzzzzzz");
     await FirebaseFirestore.instance
         .collection('products')
         .get()
         .then((QuerySnapshot productSnapshot) {
       _productsList = [];
+      print("ooooooo");
+      print(_productsList.length);
       productSnapshot.docs.forEach((element) {
         _productsList.insert(
             10,
