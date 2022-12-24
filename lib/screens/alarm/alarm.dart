@@ -9,6 +9,7 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class Alarm extends StatefulWidget {
   @override
@@ -46,6 +47,13 @@ class _AlarmState extends State<Alarm> {
   String selectedSound = "landras_dream";
   TextEditingController _titleController = new TextEditingController();
   String title = "";
+  //alarmTime = DateTime.now();
+  void initState() {
+    final nowx = DateTime.now();
+     _alarmTime = nowx;//DateTime(nowx.year, nowx.month, nowx.day, selectedTime.hour, selectedTime.minute);
+   // _alarmTime = DateFormat('hh:mm aa').format(DateTime.now());//DateFormat("hh:mm aa")DateTime.now();
+    //super.initState();
+  }
 
   get flutterLocalNotificationsPlugin => null;
 
@@ -68,220 +76,222 @@ class _AlarmState extends State<Alarm> {
           //..rotateY((pi / 4) * value),
           //child: SingleChildScrollView(
           //physics: BouncingScrollPhysics(),
-          body: Center(
-            child: Column(
-              children: [
-                ValueListenableBuilder(
-                  valueListenable: alarmBox.listenable(),
-                  builder: (context, Box<AlarmModel> box, _) {
-                    return ListView.builder(
-                      itemBuilder: (context, index) {
-                        // debugPrint(box.keys.toList().toString());
-                        // debugPrint(box.values.toList()[index].sound.toString());
-                        return Dismissible(
-                          key: ValueKey(box.keys.toList()[index]),
-                          background: Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 20.0, vertical: 14.0),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 14.0, vertical: 14.0),
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                  right: 0,
-                                  top: 50,
-                                  child: Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
+          body: SingleChildScrollView(
+            child: Center(
+              child: Column(
+                children: [
+                  ValueListenableBuilder(
+                    valueListenable: alarmBox.listenable(),
+                    builder: (context, Box<AlarmModel> box, _) {
+                      return ListView.builder(
+                        itemBuilder: (context, index) {
+                          // debugPrint(box.keys.toList().toString());
+                          // debugPrint(box.values.toList()[index].sound.toString());
+                          return Dismissible(
+                            key: ValueKey(box.keys.toList()[index]),
+                            background: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 20.0, vertical: 14.0),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14.0, vertical: 14.0),
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    right: 0,
+                                    top: 50,
+                                    child: Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          direction: DismissDirection.endToStart,
-                          onDismissed: (DismissDirection dismissed) =>
-                              deleteAlarm(box.keys.toList()[index]),
-                          child: Container(
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 20.0, vertical: 14.0),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 14.0, vertical: 14.0),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20.0),
-                              gradient: LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: GradientTemplate
-                                    .gradientTemplate[box.values
+                            direction: DismissDirection.endToStart,
+                            onDismissed: (DismissDirection dismissed) =>
+                                deleteAlarm(box.keys.toList()[index]),
+                            child: Container(
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 20.0, vertical: 14.0),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14.0, vertical: 14.0),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20.0),
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: GradientTemplate
+                                      .gradientTemplate[box.values
+                                      .toList()[index]
+                                      .gradientColorIndex]
+                                      .colors,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 10.0,
+                                    spreadRadius: 0.5,
+                                    offset: Offset(2, 4),
+                                    color: GradientTemplate
+                                        .gradientTemplate[box.values
                                         .toList()[index]
                                         .gradientColorIndex]
-                                    .colors,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  blurRadius: 10.0,
-                                  spreadRadius: 0.5,
-                                  offset: Offset(2, 4),
-                                  color: GradientTemplate
-                                      .gradientTemplate[box.values
-                                          .toList()[index]
-                                          .gradientColorIndex]
-                                      .colors
-                                      .first,
-                                ),
-                                BoxShadow(
-                                  blurRadius: 10.0,
-                                  spreadRadius: 0.5,
-                                  offset: Offset(2, 4),
-                                  color: GradientTemplate
-                                      .gradientTemplate[box.values
-                                          .toList()[index]
-                                          .gradientColorIndex]
-                                      .colors
-                                      .last,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.label,
-                                          color: Colors.white,
-                                        ),
-                                        SizedBox(
-                                          width: 10.0,
-                                        ),
-                                        Text(
-                                          "${box.values.toList().cast<AlarmModel>()[index].title}",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Switch.adaptive(
-                                      activeColor: Colors.white,
-                                      value:
-                                          box.values.toList()[index].isPending,
-                                      onChanged: (value) {
-                                        onOrOffAlarm(index, value);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  "Sun-Sat",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
+                                        .colors
+                                        .first,
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 4.0,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      DateFormat("hh:mm aa")
-                                          .format(box.values
-                                              .toList()[index]
-                                              .alarmDateTime)
-                                          .toString(),
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20.0,
+                                  BoxShadow(
+                                    blurRadius: 10.0,
+                                    spreadRadius: 0.5,
+                                    offset: Offset(2, 4),
+                                    color: GradientTemplate
+                                        .gradientTemplate[box.values
+                                        .toList()[index]
+                                        .gradientColorIndex]
+                                        .colors
+                                        .last,
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.label,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(
+                                            width: 10.0,
+                                          ),
+                                          Text(
+                                            "${box.values.toList().cast<AlarmModel>()[index].title}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        showBottomPanel(
-                                            edit: true, index: index);
-                                      },
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down,
-                                        color: Colors.white,
-                                        size: 30.0,
+                                      Switch.adaptive(
+                                        activeColor: Colors.white,
+                                        value:
+                                        box.values.toList()[index].isPending,
+                                        onChanged: (value) {
+                                          onOrOffAlarm(index, value);
+                                        },
                                       ),
+                                    ],
+                                  ),
+                                  Text(
+                                    "Sun-Sat",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18.0,
                                     ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                  SizedBox(
+                                    height: 4.0,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        DateFormat("hh:mm aa")
+                                            .format(box.values
+                                            .toList()[index]
+                                            .alarmDateTime)
+                                            .toString(),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20.0,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          showBottomPanel(
+                                              edit: true, index: index);
+                                        },
+                                        icon: Icon(
+                                          Icons.keyboard_arrow_down,
+                                          color: Colors.white,
+                                          size: 30.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      itemCount: box.keys.length,
-                      physics: BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                    );
-                  },
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Container(
-                  margin:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
-                  height: 120,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(20.0),
-                    border: Border.all(
-                      color: Colors.white,
-                      style: BorderStyle.solid,
-                      width: 1.0,
-                    ),
+                          );
+                        },
+                        itemCount: box.keys.length,
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                      );
+                    },
                   ),
-                  child: TextButton(
-                    style: ButtonStyle(
-                      elevation: MaterialStateProperty.all(0),
-                      overlayColor: MaterialStateProperty.all<Color>(
-                        Colors.grey.withOpacity(0.2),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Container(
+                    margin:
+                    EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
+                    height: 120,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(20.0),
+                      border: Border.all(
+                        color: Colors.white,
+                        style: BorderStyle.solid,
+                        width: 1.0,
                       ),
                     ),
-                    onPressed: () {
-                      showBottomPanel();
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 45.0,
+                    child: TextButton(
+                      style: ButtonStyle(
+                        elevation: MaterialStateProperty.all(0),
+                        overlayColor: MaterialStateProperty.all<Color>(
+                          Colors.grey.withOpacity(0.2),
                         ),
-                        Text(
-                          "Add Alarm",
-                          style: TextStyle(
+                      ),
+                      onPressed: () {
+                        showBottomPanel();
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add,
                             color: Colors.white,
-                            fontSize: 18.0,
+                            size: 45.0,
                           ),
-                        ),
-                      ],
+                          Text(
+                            "Add Alarm",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -453,7 +463,7 @@ class _AlarmState extends State<Alarm> {
                       onSaveAlarm(edit: edit, index: index);
                     },
                     icon: Icon(Icons.alarm),
-                    label: edit ? Text('Edit') : Text("Save"),
+                    label: edit ? Text('Edit') : Text("Savex"),
                   ),
                 ],
               ),
@@ -464,6 +474,32 @@ class _AlarmState extends State<Alarm> {
     );
   }
 
+/*  showAlertDialog(BuildContext context) {
+
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () { },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Info"),
+      content: Text("Successfull add new alarm remainder."),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }*/
+
   void scheduleAlarm(DateTime scheduleAlarmDateTime, AlarmModel alarmInfo,
       {bool? value}) async {
     // debugPrint(alarmInfo.sound);
@@ -473,7 +509,7 @@ class _AlarmState extends State<Alarm> {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'alarm_notif',
       'alarm_notif',
-      'Channel for Alarm notification',
+     // 'Channel for Alarm notification',
       icon: 'clock',
       playSound: true,
       sound: notificationSound,
@@ -491,14 +527,48 @@ class _AlarmState extends State<Alarm> {
         await flutterLocalNotificationsPlugin.cancel(alarmInfo.id);
       }
     } else {
-      await flutterLocalNotificationsPlugin.schedule(
+      Navigator.of(context, rootNavigator: true).pop();
+      print("masuk sini");
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.info,
+          animType: AnimType.rightSlide,
+          title: 'Dialog Title',
+          desc: 'Dialog description here.............',
+          btnCancelOnPress: () {},
+    btnOkOnPress: () {},
+    )..show();
+    //  dialaogxx();
+     // showAlertDialog(context);
+      /*await flutterLocalNotificationsPlugin.zonedSchedule(
         alarmInfo.id,
         "Alarm",
         alarmInfo.title,
         scheduleAlarmDateTime,
         platformChannelSpecifics,
-      );
+      );*/
+     // await flutterLocalNotificationsPlugin.zonedSchedule()
     }
+  }
+
+   dialaogxx(){
+    print("xxxx");
+     showDialog(
+      context: context,
+      builder: (context) => new AlertDialog(
+        title: new Text('Message'),
+        content: Text(
+            'Your file is saved.'),
+        actions: <Widget>[
+          new MaterialButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop(); // dismisses only the dialog and returns nothing
+            },
+            child: new Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void onOrOffAlarm(int index, bool value) async {
@@ -524,7 +594,7 @@ class _AlarmState extends State<Alarm> {
 
   void onSaveAlarm({bool edit = false, int? index}) async {
     if (await askPermission(Permission.notification)) {
-      // debugPrint(selectedSound);
+       debugPrint(selectedSound);
       DateTime scheduleAlarmDateTime;
       if (_alarmTime!.isAfter(DateTime.now()))
         scheduleAlarmDateTime = _alarmTime!;
@@ -555,7 +625,7 @@ class _AlarmState extends State<Alarm> {
         );
         await alarmBox.add(alarmInfo);
         // debugPrint(alarmInfo.sound);
-
+        //print();
         scheduleAlarm(scheduleAlarmDateTime, alarmInfo);
       }
     }
